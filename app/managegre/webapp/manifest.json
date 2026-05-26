@@ -13,7 +13,7 @@
     "sourceTemplate": {
       "id": "@sap/generator-fiori:lrop",
       "version": "1.24.0",
-      "toolsId": "32b3d488-e4ee-42e5-8ee6-2d4544f2bde8"
+      "toolsId": "a8cd279a-af25-44d0-a56b-a685ac72f136"
     },
     "dataSources": {
       "mainService": {
@@ -119,15 +119,6 @@
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
                     "type": "ResponsiveTable"
-                  },
-                  "actions": {
-                    "ImportChallan": {
-                      "press": "com.erp.gr.managegre.ext.controller.GRListExt.onImportChallan",
-                      "enabled": true,
-                      "visible": true,
-                      "text": "Import Delivery Challan",
-                      "type": "Emphasized"
-                    }
                   }
                 }
               }
@@ -161,15 +152,6 @@
               "editableHeaderContent": false,
               "contextPath": "/GoodsReceipt/items"
             }
-          }
-        }
-      }
-    },
-    "extends": {
-      "extensions": {
-        "sap.ui.controllerExtensions": {
-          "sap.fe.templates.ListReport.ListReportController": {
-            "controllerName": "com.erp.gr.managegre.ext.controller.GRListExt"
           }
         }
       }

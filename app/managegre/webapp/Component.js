@@ -1,10 +1,12 @@
-sap.ui.define([
-    "sap/fe/core/AppComponent"
-], function (AppComponent) {
-    "use strict";
-    return AppComponent.extend("com.erp.gr.managegre.Component", {
-        metadata: {
-            manifest: "json"
-        }
-    });
-});
+sap.ui.define(
+    ["sap/fe/core/AppComponent"],
+    function (Component) {
+        "use strict";
+
+        return Component.extend("com.erp.gr.managegre.Component", {
+            metadata: {
+                manifest: "json"
+            }
+        });
+    }
+);

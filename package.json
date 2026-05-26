@@ -23,21 +23,21 @@
     "app/managecutomerse",
     "app/managepr",
     "app/managepoe",
+    "app/managegre",
     "app/managegre"
   ],
-
-"cds": {
-  "requires": {
-    "dox": {
-      "kind": "rest",
-      "credentials": {
-        "url": "https://aiservices-dox.cfapps.eu10.hana.ondemand.com",
-        "authentication": "OAuth2ClientCredentials",
-        "clientid": "sb-xxxx",
-        "clientsecret": "xxxx",
-        "tokenServiceURL": "https://516e5aaftrial.authentication.eu10.hana.ondemand.com/oauth/token"
+  "cds": {
+    "requires": {
+      "dox": {
+        "kind": "rest",
+        "credentials": {
+          "url": "https://aiservices-dox.cfapps.eu10.hana.ondemand.com",
+          "authentication": "OAuth2ClientCredentials",
+          "clientid": "sb-xxxx",
+          "clientsecret": "xxxx",
+          "tokenServiceURL": "https://516e5aaftrial.authentication.eu10.hana.ondemand.com/oauth/token"
+        }
       }
     }
   }
-}
 }

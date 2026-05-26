@@ -36,6 +36,7 @@ entity POItems : cuid {
     uom          : String(10);
     rate         : Decimal(13,2);
     amount       : Decimal(13,2);
+    receivedQty  : Decimal(13,3) default 0;
 }
 
 entity GoodsReceipt : cuid, managed {
