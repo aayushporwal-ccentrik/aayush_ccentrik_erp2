@@ -1,0 +1,2 @@
+ID,paymentNumber,vendor_ID,po_ID,paymentDate,amount,mode,status
+69f2a15c-5475-4516-9516-648e1ef658b0,VPAY-2024-001,6201b175-078e-4240-8672-0aee7124589c,d5b12306-b758-49e3-9ddc-f9f8ee88ba2d,2024-01-20,600000.00,NEFT,Paid

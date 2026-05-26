@@ -1,0 +1,43 @@
+{
+  "name": "erpc",
+  "version": "1.0.0",
+  "dependencies": {
+    "@sap/cds": "^9"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2.4",
+    "cds-plugin-ui5": "^0.13.0"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch-managecutomerse": "cds watch --open com.erp.customers.managecutomerse/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-managepr": "cds watch --open com.erp.pr.managepr/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-managepoe": "cds watch --open com.erp.po.managepoe/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-managegre": "cds watch --open com.erp.gr.managegre/index.html?sap-ui-xx-viewCache=false --livereload false"
+  },
+  "private": true,
+  "workspaces": [
+    "app/*"
+  ],
+  "sapux": [
+    "app/managecutomerse",
+    "app/managepr",
+    "app/managepoe",
+    "app/managegre"
+  ],
+
+"cds": {
+  "requires": {
+    "dox": {
+      "kind": "rest",
+      "credentials": {
+        "url": "https://aiservices-dox.cfapps.eu10.hana.ondemand.com",
+        "authentication": "OAuth2ClientCredentials",
+        "clientid": "sb-xxxx",
+        "clientsecret": "xxxx",
+        "tokenServiceURL": "https://516e5aaftrial.authentication.eu10.hana.ondemand.com/oauth/token"
+      }
+    }
+  }
+}
+}

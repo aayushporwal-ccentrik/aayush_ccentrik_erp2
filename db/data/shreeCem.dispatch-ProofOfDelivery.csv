@@ -1,0 +1,4 @@
+ID,podNumber,dispatchOrder_ID,deliveryDate,receivedBy,remarks,confirmed
+44f0e475-6ce3-4d12-8f57-a5d899a7924f,POD-2024-001,5b92d1eb-1f7e-4b29-b268-acce4e32a3b4,2024-01-12,Rajesh Sharma,Delivered in good condition,true
+34bb0735-09a5-43b5-b4e6-753e68b35cef,POD-2024-002,9603b9c8-f88e-4037-958e-df8f1f16573e,2024-01-18,Vikram Singh,Partial delivery - 150 bags,true
+51251163-2529-47b1-94fb-2692cfdaf118,POD-2024-003,7f7ab32c-962e-428c-b124-3610bc78c76c,2024-02-03,Amit Verma,Pending confirmation,false

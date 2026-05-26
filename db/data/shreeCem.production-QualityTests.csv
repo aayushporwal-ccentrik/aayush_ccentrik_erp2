@@ -1,0 +1,4 @@
+ID,testNumber,prodOrder_ID,material_ID,testDate,batchNumber,result,remarks
+7156dd54-0bd4-4fed-b313-da953a457d38,QT-2024-001,65316f20-daea-4922-9e8a-4f9a5e4afd73,435fe529-d661-49e1-8fbb-d7735fb5d893,2024-01-10,BATCH-001,Pass,Compressive strength within limits
+74e9673f-b447-480d-b87a-6c57c575d8dd,QT-2024-002,65316f20-daea-4922-9e8a-4f9a5e4afd73,435fe529-d661-49e1-8fbb-d7735fb5d893,2024-01-10,BATCH-002,Pass,All parameters OK
+3724e100-049c-4a57-b3b9-b5e0c1e2b8ce,QT-2024-003,b216d9f8-9972-4d2a-8018-5ca46cfaa65d,06707d60-c2a5-487e-bddc-d15b08c1903e,2024-02-04,BATCH-003,Pending,Awaiting lab results

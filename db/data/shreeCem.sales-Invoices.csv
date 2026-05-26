@@ -1,0 +1,3 @@
+ID,invoiceNumber,salesOrder_ID,customer_ID,invoiceDate,totalAmount,gstAmount,netAmount,status
+edb8afbb-ff29-4851-b774-d000aacb9889,INV-2024-001,a5011d46-d709-4f2c-9650-4112b250ef2a,d9ab78d6-2e4e-41ce-ae18-238e4d322201,2024-01-11,62000.00,11160.00,73160.00,Posted
+8d6e00fb-f923-4abf-ac6e-52e159557ae5,INV-2024-002,55950baa-4879-46ab-803b-155bda18c6fc,30b80954-591b-4817-abec-21f1a7dfa9eb,2024-01-16,84000.00,15120.00,99120.00,Posted

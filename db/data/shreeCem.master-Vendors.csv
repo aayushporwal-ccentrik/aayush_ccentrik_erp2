@@ -1,0 +1,6 @@
+ID,vendorCode,name,type,gstNumber,address,city,state,phone
+6201b175-078e-4240-8672-0aee7124589c,VEND001,Sharma Minerals,Supplier,09AAAAA1234A1Z5,34 Industrial Area,Noida,Uttar Pradesh,9901234567
+10d219f2-6afb-4137-bffd-0ab580dac303,VEND002,Fast Logistics,Transporter,07BBBBB5678B2Z6,67 Transport Nagar,Delhi,Delhi,9911234567
+3c98585e-2f91-433d-ae1b-90d807993aae,VEND003,Rajput Coal Suppliers,Supplier,24CCCCC9012C3Z7,90 Coal Nagar,Surat,Gujarat,9921234567
+cd2fb870-8aba-4b60-b515-4581ca356f84,VEND004,Singh Transport Co,Transporter,06DDDDD3456D4Z8,12 Truck Terminal,Jaipur,Rajasthan,9931234567
+b6fd747b-552a-4411-bb84-dd6f0857475b,VEND005,Gupta Gypsum Works,Supplier,29EEEEE7890E5Z9,45 Mines Road,Hyderabad,Telangana,9941234567

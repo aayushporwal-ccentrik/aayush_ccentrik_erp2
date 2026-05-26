@@ -1,0 +1,32 @@
+{
+  "generationParameters": {
+    "generationDate": "Mon May 25 2026 09:51:33 GMT+0000 (Coordinated Universal Time)",
+    "generatorPlatform": "SAP Business Application Studio",
+    "serviceType": "Local CAP",
+    "metadataFilename": "",
+    "serviceUrl": "http://localhost:4004/procurement/",
+    "appName": "managegre",
+    "appTitle": "Good receipts",
+    "appDescription": "An SAP Fiori application.",
+    "appNamespace": "com.erp.gr",
+    "ui5Theme": "sap_horizon",
+    "ui5Version": "1.148.0",
+    "enableEslint": true,
+    "enableTypeScript": false,
+    "showMockDataInfo": false,
+    "generatorVersion": "1.24.0",
+    "template": "List Report Page V4",
+    "generatorName": "SAP Fiori Application Generator",
+    "entityRelatedConfig": [
+      {
+        "type": "Main Entity",
+        "value": "GoodsReceipt"
+      },
+      {
+        "type": "Navigation Entity",
+        "value": "items"
+      }
+    ],
+    "launchText": "To launch the generated app, start your CAP project:  and navigate to the following location in your browser:\n\nhttp://localhost:4004/com.erp.gr.managegre/index.html"
+  }
+}

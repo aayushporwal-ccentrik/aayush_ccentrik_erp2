@@ -1,0 +1,3 @@
+ID,transferNo,fromPlant_ID,toPlant_ID,material_ID,quantity,uom,transferDate,status
+4e3f4487-ec86-49fb-8dbf-eef3aa73a47b,ST-2024-001,10a57174-93d4-4c8b-ab93-373543b260f2,3d709be3-5f5e-43ca-89bd-e66b7160f448,435fe529-d661-49e1-8fbb-d7735fb5d893,1000.000,BAG,2024-02-05,Completed
+591b7624-de61-457e-8382-b9a89ea06a34,ST-2024-002,10a57174-93d4-4c8b-ab93-373543b260f2,ae1595dc-63d3-467f-9b41-b2efa82cd6af,06707d60-c2a5-487e-bddc-d15b08c1903e,500.000,BAG,2024-02-08,Pending

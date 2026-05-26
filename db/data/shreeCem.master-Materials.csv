@@ -1,0 +1,9 @@
+ID,materialCode,description,type,uom,grade
+435fe529-d661-49e1-8fbb-d7735fb5d893,MAT001,Ordinary Portland Cement 53 Grade,FinishedGood,BAG,OPC53
+06707d60-c2a5-487e-bddc-d15b08c1903e,MAT002,Portland Pozzolana Cement,FinishedGood,BAG,PPC
+a222adbf-4641-4521-99ef-eaa20455fa44,MAT003,Limestone,RawMaterial,MT,
+c984b650-2dba-4208-92b4-366c2778f9ce,MAT004,Coal,RawMaterial,MT,
+c34da633-786c-4aea-bc57-c5f2f52ca161,MAT005,Gypsum,RawMaterial,MT,
+7276af5b-69a4-4a1e-9a8c-44198d893352,MAT006,Fly Ash,RawMaterial,MT,
+99acd6bf-2086-4cd3-a803-49b0eec90b97,MAT007,Cement Bag (50kg),Spare,PCS,
+bd57fce1-b10b-4996-89f0-59a27d20b291,MAT008,Bearing SKF 6205,Spare,PCS,

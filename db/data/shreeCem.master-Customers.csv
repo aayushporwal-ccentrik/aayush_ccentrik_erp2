@@ -1,0 +1,6 @@
+ID,customerCode,name,type,gstNumber,address,city,state,phone
+d9ab78d6-2e4e-41ce-ae18-238e4d322201,CUST001,Ramesh Traders,Dealer,09ABCDE1234F1Z5,12 MG Road,Noida,Uttar Pradesh,9876543210
+30b80954-591b-4817-abec-21f1a7dfa9eb,CUST002,Singh Constructions,Contractor,07FGHIJ5678K2Z6,45 Ring Road,Delhi,Delhi,9812345678
+471979cd-e03c-44d8-bda4-38a00444515f,CUST003,Patel Builders,Dealer,24KLMNO9012L3Z7,78 SG Highway,Ahmedabad,Gujarat,9823456789
+c402a810-1395-4e2e-a843-97b403f20154,CUST004,Verma Infra,Contractor,06PQRST3456M4Z8,23 Civil Lines,Jaipur,Rajasthan,9834567890
+a1836759-7dbc-4b67-ba44-9886742e6dc9,CUST005,Kumar Depot,Dealer,29UVWXY7890N5Z9,56 Hosur Road,Bangalore,Karnataka,9845678901

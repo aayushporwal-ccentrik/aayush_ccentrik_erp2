@@ -1,0 +1,4 @@
+ID,dispatchNo,salesOrder_ID,customer_ID,plant_ID,truckNumber,driverName,dispatchDate,status
+5b92d1eb-1f7e-4b29-b268-acce4e32a3b4,DISP-2024-001,a5011d46-d709-4f2c-9650-4112b250ef2a,d9ab78d6-2e4e-41ce-ae18-238e4d322201,10a57174-93d4-4c8b-ab93-373543b260f2,MH-02-AB-1234,Ravi Singh,2024-01-11,Delivered
+9603b9c8-f88e-4037-958e-df8f1f16573e,DISP-2024-002,55950baa-4879-46ab-803b-155bda18c6fc,30b80954-591b-4817-abec-21f1a7dfa9eb,10a57174-93d4-4c8b-ab93-373543b260f2,UP-07-CD-5678,Ajay Kumar,2024-01-17,Dispatched
+7f7ab32c-962e-428c-b124-3610bc78c76c,DISP-2024-003,52a817b5-44ed-4491-81a1-298b74e9d3d4,471979cd-e03c-44d8-bda4-38a00444515f,3d709be3-5f5e-43ca-89bd-e66b7160f448,DL-01-EF-9012,Suresh Patel,2024-02-02,Pending

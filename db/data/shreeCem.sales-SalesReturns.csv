@@ -1,0 +1,2 @@
+ID,returnNumber,salesOrder_ID,customer_ID,returnDate,reason,creditNoteRef
+698f6a3c-eed4-47f8-89a1-e82dacb33cbc,RET-2024-001,a5011d46-d709-4f2c-9650-4112b250ef2a,d9ab78d6-2e4e-41ce-ae18-238e4d322201,2024-01-22,RejectedBags,CN-2024-001
