@@ -6,3 +6,5 @@ using from './managepr/annotations';
 using from './managepoe/annotations';
 
 using from './managegre/annotations';
+
+using from './managevendorinvoice/annotations';

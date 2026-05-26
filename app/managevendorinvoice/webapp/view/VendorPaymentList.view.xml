@@ -1,0 +1,196 @@
+<mvc:View controllerName="com.erp.vie.managevendorinvoice.controller.VendorPaymentList"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:l="sap.ui.layout"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:core="sap.ui.core"
+    displayBlock="true">
+
+    <Page
+        id="vendorPaymentListPage"
+        title="{i18n>title}"
+        showNavButton="false">
+
+        <subHeader>
+            <Bar id="subHeaderBar">
+                <contentLeft>
+                    <Text id="txtBreadcrumb" text="Procurement · Vendor payments" class="sapUiTinyMarginBegin"/>
+                </contentLeft>
+            </Bar>
+        </subHeader>
+
+        <content>
+            <VBox id="mainVBox" class="sapUiResponsiveMargin">
+
+                <HBox id="hboxTiles" wrap="Wrap" class="sapUiSmallMarginBottom">
+                    <GenericTile
+                        id="tileOutstanding"
+                        header="Total outstanding"
+                        subheader="{vendorPayment>/metrics/totalOutstandingCount} invoices"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                        press=".onFilterStatus('')">
+                        <tileContent>
+                            <TileContent id="tcOutstanding">
+                                <content>
+                                    <NumericContent id="ncOutstanding"
+                                        value="{vendorPayment>/metrics/totalOutstanding}"
+                                        valueColor="Neutral"
+                                        withMargin="false"/>
+                                </content>
+                            </TileContent>
+                        </tileContent>
+                    </GenericTile>
+
+                    <GenericTile
+                        id="tileOverdue"
+                        header="Overdue"
+                        subheader="{vendorPayment>/metrics/overdueCount} invoices"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                        press=".onFilterStatus('Overdue')">
+                        <tileContent>
+                            <TileContent id="tcOverdue">
+                                <content>
+                                    <NumericContent id="ncOverdue"
+                                        value="{vendorPayment>/metrics/overdue}"
+                                        valueColor="Critical"
+                                        withMargin="false"/>
+                                </content>
+                            </TileContent>
+                        </tileContent>
+                    </GenericTile>
+
+                    <GenericTile
+                        id="tilePaid"
+                        header="Paid this month"
+                        subheader="{vendorPayment>/metrics/paidThisMonthCount} invoices"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                        press=".onFilterStatus('Paid')">
+                        <tileContent>
+                            <TileContent id="tcPaid">
+                                <content>
+                                    <NumericContent id="ncPaid"
+                                        value="{vendorPayment>/metrics/paidThisMonth}"
+                                        valueColor="Good"
+                                        withMargin="false"/>
+                                </content>
+                            </TileContent>
+                        </tileContent>
+                    </GenericTile>
+
+                    <GenericTile
+                        id="tilePending"
+                        header="Pending approval"
+                        subheader="{vendorPayment>/metrics/pendingApprovalCount} invoices"
+                        class="sapUiTinyMarginBottom"
+                        press=".onFilterStatus('Pending')">
+                        <tileContent>
+                            <TileContent id="tcPending">
+                                <content>
+                                    <NumericContent id="ncPending"
+                                        value="{vendorPayment>/metrics/pendingApproval}"
+                                        valueColor="Critical"
+                                        withMargin="false"/>
+                                </content>
+                            </TileContent>
+                        </tileContent>
+                    </GenericTile>
+                </HBox>
+
+                <Toolbar id="filterToolbar" class="sapUiSmallMarginBottom">
+                    <SearchField
+                        id="searchField"
+                        placeholder="Search vendor / invoice…"
+                        width="220px"
+                        search=".onSearch"
+                        liveChange=".onSearch"/>
+                    <ToolbarSpacer id="tsSpacer1" width="12px"/>
+                    <Select id="statusFilter" change=".onStatusFilterChange" forceSelection="false">
+                        <core:Item id="itemStatusAll" key="" text="All statuses"/>
+                        <core:Item id="itemStatusPending" key="Pending" text="Pending"/>
+                        <core:Item id="itemStatusApproved" key="Approved" text="Approved"/>
+                        <core:Item id="itemStatusPaid" key="Paid" text="Paid"/>
+                        <core:Item id="itemStatusOverdue" key="Overdue" text="Overdue"/>
+                        <core:Item id="itemStatusPartial" key="Partial" text="Partial"/>
+                    </Select>
+                    <ToolbarSpacer id="tsSpacer2" width="12px"/>
+                    <Select id="vendorFilter" change=".onVendorFilterChange" forceSelection="false">
+                        <core:Item id="itemVendorAll" key="" text="All vendors"/>
+                        <core:Item id="itemVendorRamco" key="Ramco Cements Ltd" text="Ramco Cements Ltd"/>
+                        <core:Item id="itemVendorAcc" key="ACC Ltd" text="ACC Ltd"/>
+                        <core:Item id="itemVendorUltra" key="Ultratech Logistics" text="Ultratech Logistics"/>
+                        <core:Item id="itemVendorBharat" key="Bharat Electricals" text="Bharat Electricals"/>
+                        <core:Item id="itemVendorShree" key="Shree Polymers" text="Shree Polymers"/>
+                    </Select>
+                    <ToolbarSpacer id="tsSpacerEnd"/>
+                    <Button
+                        id="btnNewPayment"
+                        text="New payment"
+                        type="Emphasized"
+                        icon="sap-icon://add"
+                        press=".onNewPayment"/>
+                </Toolbar>
+
+                <Table
+                    id="invoiceTable"
+                    items="{vendorPayment>/invoices}"
+                    growing="true"
+                    growingThreshold="10"
+                    mode="SingleSelectMaster"
+                    selectionChange=".onInvoiceSelect">
+
+                    <headerToolbar>
+                        <Toolbar id="tableToolbar">
+                            <Title id="tableTitle" text="Invoices" level="H3"/>
+                        </Toolbar>
+                    </headerToolbar>
+
+                    <columns>
+                        <Column id="colVendor" width="22%"><Text id="colHdrVendor" text="Vendor / Invoice"/></Column>
+                        <Column id="colPoRef" width="9%"><Text id="colHdrPoRef" text="PO ref"/></Column>
+                        <Column id="colInvDate" width="10%"><Text id="colHdrInvDate" text="Invoice date"/></Column>
+                        <Column id="colDueDate" width="10%"><Text id="colHdrDueDate" text="Due date"/></Column>
+                        <Column id="colAmount" width="10%" hAlign="End"><Text id="colHdrAmount" text="Amount"/></Column>
+                        <Column id="colTdsGst" width="13%" hAlign="End"><Text id="colHdrTdsGst" text="TDS / GST"/></Column>
+                        <Column id="colNetPayable" width="11%" hAlign="End"><Text id="colHdrNetPayable" text="Net payable"/></Column>
+                        <Column id="colStatus" width="8%" hAlign="Center"><Text id="colHdrStatus" text="Status"/></Column>
+                        <Column id="colAction" width="7%" hAlign="Center"><Text id="colHdrAction" text="Action"/></Column>
+                    </columns>
+
+                    <items>
+                        <ColumnListItem id="invoiceCLI" type="Navigation" press=".onInvoicePress">
+                            <cells>
+                                <VBox id="cellVendorVBox">
+                                    <Text id="cellVendor" text="{vendorPayment>vendor}" class="sapMTextBold"/>
+                                    <Label id="cellInvoiceId" text="{vendorPayment>invoiceId}"/>
+                                </VBox>
+                                <Text id="cellPoRef" text="{vendorPayment>poRef}"/>
+                                <Text id="cellInvDate" text="{vendorPayment>invoiceDate}"/>
+                                <Text id="cellDueDate" text="{vendorPayment>dueDate}"/>
+                                <Text id="cellGrossAmt" text="{vendorPayment>grossAmount}"/>
+                                <Text id="cellTdsGst" text="{vendorPayment>tds} / {vendorPayment>gst}"/>
+                                <ObjectNumber id="cellNetPayable" number="{vendorPayment>netPayable}" emphasized="true"/>
+                                <ObjectStatus id="cellStatus" text="{vendorPayment>status}" state="{vendorPayment>statusState}"/>
+                                <Button id="cellActionBtn" text="{vendorPayment>action}" type="Transparent" press=".onActionPress"/>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+
+                </Table>
+
+            </VBox>
+        </content>
+
+        <footer>
+            <Bar id="footerBar">
+                <contentLeft>
+                    <Text id="txtFooterLeft" text="Verification: GRN match · PO price · GST · Duplicate check · Bank details"/>
+                </contentLeft>
+                <contentRight>
+                    <Text id="txtFooterRight" text="Payment modes: NEFT · RTGS · Cheque · Partial · Advance (with approval)"/>
+                </contentRight>
+            </Bar>
+        </footer>
+
+    </Page>
+
+</mvc:View>

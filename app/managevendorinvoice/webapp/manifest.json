@@ -1,0 +1,129 @@
+{
+  "_version": "1.84.0",
+  "sap.app": {
+    "id": "com.erp.vie.managevendorinvoice",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.24.0",
+      "toolsId": "eca80b9a-c97d-4124-8cbd-2cf9b7f4e13c"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/procurement/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.01"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.148.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.ui.layout": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "com.erp.vie.managevendorinvoice.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "com.erp.vie.managevendorinvoice.view",
+        "async": true,
+        "viewPath": "com.erp.vie.managevendorinvoice.view"
+      },
+      "routes": [
+        {
+          "name": "RouteVendorPaymentList",
+          "pattern": ":?query:",
+          "target": [
+            "TargetVendorPaymentList"
+          ]
+        },
+        {
+          "name": "RoutePaymentEntry",
+          "pattern": "payment/{invoiceId}",
+          "target": [
+            "TargetPaymentEntry"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetVendorPaymentList": {
+          "id": "VendorPaymentList",
+          "name": "VendorPaymentList"
+        },
+        "TargetPaymentEntry": {
+          "id": "PaymentEntry",
+          "name": "PaymentEntry"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "com.erp.vie.managevendorinvoice.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  }
+}

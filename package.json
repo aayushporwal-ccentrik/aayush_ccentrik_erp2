@@ -13,7 +13,8 @@
     "watch-managecutomerse": "cds watch --open com.erp.customers.managecutomerse/index.html?sap-ui-xx-viewCache=false --livereload false",
     "watch-managepr": "cds watch --open com.erp.pr.managepr/index.html?sap-ui-xx-viewCache=false --livereload false",
     "watch-managepoe": "cds watch --open com.erp.po.managepoe/index.html?sap-ui-xx-viewCache=false --livereload false",
-    "watch-managegre": "cds watch --open com.erp.gr.managegre/index.html?sap-ui-xx-viewCache=false --livereload false"
+    "watch-managegre": "cds watch --open com.erp.gr.managegre/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-managevendorinvoice": "cds watch --open com.erp.vie.managevendorinvoice/index.html?sap-ui-xx-viewCache=false --livereload false"
   },
   "private": true,
   "workspaces": [
