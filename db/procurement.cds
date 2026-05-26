@@ -64,28 +64,40 @@ entity VendorPayments : cuid, managed {
     status        : String(20); // e.g. Paid, Pending
 }
 
-// Extracted invoice from DOX — links back to PO and GR
-entity VendorInvoices : cuid, managed {
-    invoiceNumber  : String(20);
-    po             : Association to PurchaseOrders;
-    grn            : Association to GoodsReceipt;
-    vendor         : Association to master.Vendors;
-    invoiceDate    : Date;
-    netAmount      : Decimal(13,2);
-    taxAmount      : Decimal(13,2);
-    grossAmount    : Decimal(13,2);
-    currencyCode   : String(3);
-    status         : String(20) enum { PENDING; MATCHED; DISCREPANCY; PAID; };
-    rawDoxResponse : LargeString;   // full DOX JSON for audit
-    matchResult    : String(50);    // e.g. '3-way match OK', 'Qty mismatch'
-    items          : Composition of many VendorInvoiceItems on items.invoice = $self;
+entity DeliveryChallan {
+  key challanID       : UUID;
+      challanNumber   : String(20);
+      challanDate     : Date;
+      vendorName      : String(100);
+      deliveryAddress : String(255);
+      purchaseOrderNo : String(20);
+      vehicleNumber   : String(20);
+      driverName      : String(100);
+      totalQuantity   : Decimal(13,3);
+      totalWeight     : Decimal(13,3);
+      remarks         : String(500);
+      status          : String(20) default 'PENDING';
+      // PENDING → EXTRACTED → GR_CREATED
+      pdfFileName     : String(255);
+      pdfContent      : LargeBinary;
+      createdAt       : Timestamp;
+      createdBy       : String(255);
+      items           : Composition of many DeliveryChallanItem
+                          on items.challan = $self;
 }
 
-entity VendorInvoiceItems : cuid {
-    invoice     : Association to VendorInvoices;
-    material    : Association to master.Materials;
-    description : String;
-    quantity    : Decimal(13,3);
-    unitPrice   : Decimal(13,2);
-    amount      : Decimal(13,2);
+entity DeliveryChallanItem {
+  key itemID                : UUID;
+      challan               : Association to DeliveryChallan;
+      itemNumber            : Integer;
+      vendorMaterialCode    : String(40);   // Vendor's own code
+      materialDescription   : String(255);  // As written on challan
+      deliveredQuantity     : Decimal(13,3);
+      unitOfMeasure         : String(6);
+      batchNumber           : String(20);
+      expiryDate            : Date;
+      hsnCode               : String(10);
+      unitPrice             : Decimal(15,2);
+      totalValue            : Decimal(15,2);
+      extractionConfidence  : Decimal(5,2); // AI confidence per line
 }
