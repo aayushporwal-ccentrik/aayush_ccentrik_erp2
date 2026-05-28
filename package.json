@@ -2,10 +2,13 @@
   "name": "erpc",
   "version": "1.0.0",
   "dependencies": {
-    "@sap/cds": "^9"
+    "@sap/cds": "^9",
+    "@sap/xsenv": "^3.4.0",
+    "@sap/xssec": "^4"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^2.4",
+    "@sap/cds-dk": "^9",
     "cds-plugin-ui5": "^0.13.0"
   },
   "scripts": {
@@ -34,10 +37,13 @@
         "credentials": {
           "url": "https://aiservices-dox.cfapps.eu10.hana.ondemand.com",
           "authentication": "OAuth2ClientCredentials",
-          "clientid": "sb-xxxx",
-          "clientsecret": "xxxx",
+          "clientid": "sb-583d43d8-f5e1-4d99-8e97-fafe539403f2!b637170|dox-xsuaa-std-trial!b10844",
+          "clientsecret": "c875c231-a25a-423c-b8f1-95c3e65c16e7$6cC-UfPq6MHps7FoPiT5NT3Zj3h7qChzCoUmk97Mf7A=",
           "tokenServiceURL": "https://516e5aaftrial.authentication.eu10.hana.ondemand.com/oauth/token"
         }
+      },
+      "[production]": {
+        "auth": "xsuaa"
       }
     }
   }
