@@ -55,14 +55,38 @@ entity GRItems : cuid {
     uom          : String(10);
 }
 
+entity Invoices : cuid, managed {
+    invoiceId       : String(30);   // E.g. "INV-2024-0041"
+    vendor          : String(100);  // Text representation for easy binding {vendorPayment>vendor}
+    poRef           : String(30);   // "PO-1120"
+    grnRef          : String(30);   // "GRN-0881"
+    invoiceDate     : String(20);   // Handles string formats from UI mockups like "10 May 2025"
+    dueDate         : String(20);   // "25 May 2025"
+    grossAmount     : String(20);   // Pre-formatted currency strings: "₹2,40,000"
+    tds             : String(20);   // "₹4,800"
+    cgst            : String(20);   // "₹21,600"
+    sgst            : String(20);   // "₹21,600"
+    gst             : String(20);   // "₹43,200"
+    netPayable      : String(20);   // "₹1,92,000"
+    netPayableRaw   : Decimal(15,2);// Numeric equivalent for live field arithmetic computations
+    status          : String(20);   // "Overdue", "Approved", "Pending", "Partial", "Paid"
+    statusState     : String(10);   // "Error", "Success", "Warning", "None"
+    action          : String(20);   // "Pay now", "Approve", "View"
+}
+
+// Enhancing VendorPayments block to link directly with our Invoices entity
 entity VendorPayments : cuid, managed {
-    paymentNumber : String(20);
-    vendor        : Association to master.Vendors;
-    po            : Association to PurchaseOrders;
-    paymentDate   : Date;
-    amount        : Decimal(13,2);
-    mode          : String(20);
-    status        : String(20); // e.g. Paid, Pending
+    paymentNumber   : String(20);
+    vendor          : Association to master.Vendors;
+    invoice         : Association to Invoices; // Linked transaction reference
+    po              : Association to PurchaseOrders;
+    paymentDate     : Date;
+    amount          : Decimal(13,2);
+    mode            : String(20); // NEFT, RTGS, Cheque
+    bankAccount     : String(30);
+    utrRef          : String(50);
+    remarks         : String(500);
+    status          : String(20); // Paid, Draft, Pending
 }
 
 entity DeliveryChallan {

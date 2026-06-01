@@ -7,174 +7,147 @@
     <Dialog
         id="importChallanDialog"
         title="Import Delivery Challan"
-        contentWidth="640px"
+        contentWidth="760px"
+        contentHeight="80vh"
+        verticalScrolling="true"
         resizable="true"
         draggable="true">
 
         <content>
             <VBox id="challanRootVBox" class="sapUiSmallMargin">
-
                 <Title id="titleStep1" text="1. Select PDF" titleStyle="H5" class="sapUiTinyMarginBottom"/>
                 <Text id="textStep1Hint" text="Choose a delivery challan PDF from your device."
-                      class="sapUiTinyMarginBottom sapUiSmallMarginBottom"/>
+                    class="sapUiTinyMarginBottom sapUiSmallMarginBottom"/>
 
                 <u:FileUploader
-                        id="challanFileUploader"
-                        name="challanPDF"
-                        uploadUrl=""
-                        fileType="pdf"
-                        mimeType="application/pdf"
-                        placeholder="Choose PDF file…"
-                        width="100%"
-                        buttonText="Browse"
-                        change=".onFileChange"
-                        style="Emphasized"/>
+                    id="challanFileUploader"
+                    name="challanPDF"
+                    fileType="pdf"
+                    mimeType="application/pdf"
+                    placeholder="Choose PDF file..."
+                    width="100%"
+                    buttonText="Browse"
+                    change="onFileChange"
+                    style="Emphasized"/>
 
-                <VBox id="filePreviewVBox"
-                    visible="{= !!${challan>/fileName}}"
-                    class="sapUiSmallMarginTop">
-
-                    <HBox id="filePreviewHBox"
-                        class="sapUiSmallMarginBottom"
-                        alignItems="Center"
-                        renderType="Bare">
-
-                        <core:Icon
-                            id="filePdfIcon"
-                            src="{challan>/fileIcon}"
-                            size="2.5rem"
-                            color="Negative"
-                            class="sapUiSmallMarginEnd"/>
-
+                <VBox id="filePreviewVBox" visible="{= !!${challan>/fileName}}" class="sapUiSmallMarginTop">
+                    <HBox id="filePreviewHBox" class="sapUiSmallMarginBottom" alignItems="Center" renderType="Bare">
+                        <core:Icon id="filePdfIcon" src="{challan>/fileIcon}" size="2.5rem"
+                            color="Negative" class="sapUiSmallMarginEnd"/>
                         <VBox id="fileInfoVBox">
                             <Title id="fileNameTitle" text="{challan>/fileName}" titleStyle="H6"/>
                             <Text id="fileSizeText" text="{challan>/fileSize}" class="sapUiTinyMarginTop"/>
                         </VBox>
-
-                        <core:Icon
-                            id="fileAcceptIcon"
-                            src="sap-icon://accept"
-                            size="1.2rem"
-                            color="Positive"
-                            class="sapUiSmallMarginBegin"
-                            visible="{challan>/uploadDone}"/>
+                        <core:Icon id="fileAcceptIcon" src="sap-icon://accept" size="1.2rem"
+                            color="Positive" class="sapUiSmallMarginBegin" visible="{challan>/uploadDone}"/>
                     </HBox>
                 </VBox>
 
-                <Title id="titleStep2" text="2. Extract Data (AI)" titleStyle="H5"
-                       class="sapUiSmallMarginTop sapUiTinyMarginBottom"/>
-                <Text id="textStep2Hint" text="Sends the PDF to BTP Document Information Extraction service."
-                      class="sapUiTinyMarginBottom sapUiSmallMarginBottom"/>
+                <Title id="titleStep2" text="2. Extract Data with AI" titleStyle="H5"
+                    class="sapUiSmallMarginTop sapUiTinyMarginBottom"/>
+                <Text id="textStep2Hint" text="Sends the PDF to the BTP Document Information Extraction service."
+                    class="sapUiTinyMarginBottom sapUiSmallMarginBottom"/>
 
                 <Button
                     id="extractButton"
                     text="Extract"
                     type="Emphasized"
                     icon="sap-icon://machine-learning"
-                    press=".onExtract"
-                    enabled="{= ${challan>/uploadDone} &amp;&amp; !${challan>/extracting} &amp;&amp; !${challan>/extractDone}}"
+                    press="onExtract"
+                    enabled="{challan>/canExtract}"
                     class="sapUiSmallMarginBottom"/>
 
-                <BusyIndicator
-                    id="extractBusyIndicator"
-                    visible="{challan>/extracting}"
-                    class="sapUiTinyMarginBottom"/>
+                <BusyIndicator id="extractBusyIndicator" visible="{challan>/extracting}" class="sapUiTinyMarginBottom"/>
 
                 <VBox id="extractedDataVBox" visible="{challan>/extractDone}">
-                    <Title id="titleStep3" text="3. Review Extracted Data" titleStyle="H5"
-                           class="sapUiSmallMarginTop sapUiTinyMarginBottom"/>
+                    <Title id="titleStep3" text="3. Preview and Approve" titleStyle="H5"
+                        class="sapUiSmallMarginTop sapUiTinyMarginBottom"/>
+
+                    <MessageStrip
+                        id="previewMessageStrip"
+                        text="Review the extracted challan header and line items. Goods Receipt creation is disabled until you approve this preview."
+                        type="Information"
+                        showIcon="true"
+                        class="sapUiTinyMarginBottom"/>
 
                     <HBox id="confidenceHBox" alignItems="Center" class="sapUiTinyMarginBottom">
-                        <Text id="confidenceLabel" text="AI Confidence: " />
-                        <ObjectStatus
-                            id="confidenceStatus"
-                            text="{challan>/confidenceDisplay}"
-                            state="{challan>/confidenceState}"
-                            class="sapUiSmallMarginBegin"/>
+                        <Text id="confidenceLabel" text="AI confidence:"/>
+                        <ObjectStatus id="confidenceStatus" text="{challan>/confidenceDisplay}"
+                            state="{challan>/confidenceState}" class="sapUiSmallMarginBegin"/>
                     </HBox>
 
                     <f:SimpleForm
                         id="extractedDataForm"
-                        editable="true"
+                        editable="false"
                         layout="ResponsiveGridLayout"
                         columnsL="2"
                         columnsM="1"
                         labelSpanL="4"
                         emptySpanL="0"
                         class="sapUiNoContentPadding">
-
                         <f:content>
-                            <Label id="lblChallanNumber"   text="Challan Number"/>
-                            <Input id="inpChallanNumber"   value="{challan>/challanNumber}"   editable="false"/>
+                            <Label id="lblChallanNumber" text="Challan Number"/>
+                            <Text id="txtChallanNumber" text="{challan>/challanNumber}"/>
 
-                            <Label id="lblChallanDate"     text="Challan Date"/>
-                            <Input id="inpChallanDate"     value="{challan>/challanDate}"     editable="false"/>
+                            <Label id="lblChallanDate" text="Challan Date"/>
+                            <Text id="txtChallanDate" text="{challan>/challanDate}"/>
 
-                            <Label id="lblVendorName"      text="Vendor Name"/>
-                            <Input id="inpVendorName"      value="{challan>/vendorName}"      editable="false"/>
+                            <Label id="lblVendorName" text="Vendor Name"/>
+                            <Text id="txtVendorName" text="{challan>/vendorName}"/>
 
-                            <Label id="lblPONumber"        text="PO Number"/>
-                            <Input id="inpPONumber"        value="{challan>/purchaseOrderNo}" editable="false"/>
+                            <Label id="lblPONumber" text="PO Number"/>
+                            <Text id="txtPONumber" text="{challan>/purchaseOrderNo}"/>
 
-                            <Label id="lblVehicleNumber"   text="Vehicle Number"/>
-                            <Input id="inpVehicleNumber"   value="{challan>/vehicleNumber}"   editable="false"/>
+                            <Label id="lblVehicleNumber" text="Vehicle Number"/>
+                            <Text id="txtVehicleNumber" text="{challan>/vehicleNumber}"/>
 
-                            <Label id="lblDriverName"      text="Driver Name"/>
-                            <Input id="inpDriverName"      value="{challan>/driverName}"      editable="false"/>
+                            <Label id="lblDriverName" text="Driver Name"/>
+                            <Text id="txtDriverName" text="{challan>/driverName}"/>
 
                             <Label id="lblDeliveryAddress" text="Delivery Address"/>
-                            <Input id="inpDeliveryAddress" value="{challan>/deliveryAddress}" editable="false"/>
+                            <Text id="txtDeliveryAddress" text="{challan>/deliveryAddress}"/>
 
-                            <Label id="lblTotalQuantity"   text="Total Quantity"/>
-                            <Input id="inpTotalQuantity"   value="{challan>/totalQuantity}"   editable="false"/>
+                            <Label id="lblTotalQuantity" text="Total Quantity"/>
+                            <Text id="txtTotalQuantity" text="{challan>/totalQuantity}"/>
                         </f:content>
                     </f:SimpleForm>
 
                     <Title id="titleLineItems" text="Line Items" titleStyle="H6"
-                           class="sapUiSmallMarginTop sapUiTinyMarginBottom"/>
+                        class="sapUiSmallMarginTop sapUiTinyMarginBottom"/>
 
-                    <Table
-                        id="lineItemsTable"
-                        items="{challan>/lineItems}"
-                        noDataText="No line items extracted."
+                    <Table id="lineItemsTable" items="{challan>/lineItems}" noDataText="No line items extracted."
                         class="sapUiSmallMarginBottom">
                         <columns>
-                            <Column id="colMatCode">
-                                <Text id="colMatCodeText" text="Material Code"/>
-                            </Column>
-                            <Column id="colMatDesc">
-                                <Text id="colMatDescText" text="Description"/>
-                            </Column>
-                            <Column id="colQty" hAlign="End">
-                                <Text id="colQtyText" text="Qty"/>
-                            </Column>
-                            <Column id="colUOM">
-                                <Text id="colUOMText" text="UOM"/>
-                            </Column>
-                            <Column id="colItemStatus">
-                                <Text id="colItemStatusText" text="Status"/>
-                            </Column>
+                            <Column id="colMatCode"><Text id="colMatCodeText" text="Material Code"/></Column>
+                            <Column id="colMatDesc"><Text id="colMatDescText" text="Description"/></Column>
+                            <Column id="colQty" hAlign="End"><Text id="colQtyText" text="Qty"/></Column>
+                            <Column id="colUOM"><Text id="colUOMText" text="UOM"/></Column>
+                            <Column id="colItemStatus"><Text id="colItemStatusText" text="Status"/></Column>
                         </columns>
                         <items>
                             <ColumnListItem id="lineItemRow">
                                 <cells>
-                                    <Text id="cellMatCode"   text="{challan>vendorMaterialCode}"/>
-                                    <Text id="cellMatDesc"   text="{challan>materialDescription}"/>
-                                    <Text id="cellQty"       text="{challan>deliveredQuantity}"/>
-                                    <Text id="cellUOM"       text="{challan>unitOfMeasure}"/>
-                                    <ObjectStatus
-                                        id="cellItemStatus"
-                                        text="{challan>itemStatus}"
-                                        state="{challan>itemState}"/>
+                                    <Text id="cellMatCode" text="{challan>vendorMaterialCode}"/>
+                                    <Text id="cellMatDesc" text="{challan>materialDescription}"/>
+                                    <Text id="cellQty" text="{challan>deliveredQuantity}"/>
+                                    <Text id="cellUOM" text="{challan>unitOfMeasure}"/>
+                                    <ObjectStatus id="cellItemStatus" text="{challan>itemStatus}" state="{challan>itemState}"/>
                                 </cells>
                             </ColumnListItem>
                         </items>
                     </Table>
 
+                    <CheckBox
+                        id="previewApprovalCheckBox"
+                        text="I reviewed the preview and approve creating the Goods Receipt"
+                        selected="{challan>/previewApproved}"
+                        select="onPreviewApprovalChange"
+                        class="sapUiSmallMarginBottom"/>
+
                     <Title id="titleStep4" text="4. Create Goods Receipt" titleStyle="H5"
-                           class="sapUiSmallMarginTop sapUiTinyMarginBottom"/>
+                        class="sapUiSmallMarginTop sapUiTinyMarginBottom"/>
                     <Text id="textStep4Hint"
-                        text="Creates the GR and updates stock. If any material quantity is short, status will be PartialGR."
+                        text="Creates the GR and updates stock only after preview approval."
                         class="sapUiTinyMarginBottom sapUiSmallMarginBottom"/>
 
                     <Button
@@ -182,14 +155,11 @@
                         text="Create Goods Receipt"
                         type="Accept"
                         icon="sap-icon://receipt"
-                        press=".onCreateGR"
-                        enabled="{= !${challan>/creatingGR} &amp;&amp; !${challan>/grNumber}}"
+                        press="onCreateGR"
+                        enabled="{= ${challan>/previewApproved} &amp;&amp; !${challan>/creatingGR} &amp;&amp; !${challan>/grNumber}}"
                         class="sapUiSmallMarginBottom"/>
 
-                    <BusyIndicator
-                        id="createGRBusyIndicator"
-                        visible="{challan>/creatingGR}"
-                        class="sapUiTinyMarginBottom"/>
+                    <BusyIndicator id="createGRBusyIndicator" visible="{challan>/creatingGR}" class="sapUiTinyMarginBottom"/>
 
                     <MessageStrip
                         id="grSuccessStrip"
@@ -207,17 +177,11 @@
                     type="{challan>/statusState}"
                     showIcon="true"
                     class="sapUiSmallMarginTop"/>
-
             </VBox>
         </content>
 
         <buttons>
-            <Button
-                id="closeDialogButton"
-                text="Close"
-                press=".onCloseDialog"
-                type="Default"/>
+            <Button id="closeDialogButton" text="Close" press="onCloseDialog" type="Default"/>
         </buttons>
-
     </Dialog>
 </core:FragmentDefinition>

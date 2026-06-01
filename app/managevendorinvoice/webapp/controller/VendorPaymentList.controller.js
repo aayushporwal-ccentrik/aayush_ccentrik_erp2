@@ -2,86 +2,158 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "sap/m/MessageToast"
-], (Controller, Filter, FilterOperator, MessageToast) => {
+    "sap/m/MessageToast",
+    "sap/ui/model/json/JSONModel"
+], function (Controller, Filter, FilterOperator, MessageToast, JSONModel) {
     "use strict";
 
-    return Controller.extend("com.erp.vie.managevendorinvoice.controller.VendorPaymentList", { // CHANGED: correct namespace
+    return Controller.extend("com.erp.vie.managevendorinvoice.controller.VendorPaymentList", {
+        onInit: function () {
+            this.getView().setModel(new JSONModel({
+                totalOutstanding: "Rs. 0.0L",
+                totalOutstandingCount: 0,
+                overdue: "Rs. 0.0L",
+                overdueCount: 0,
+                paidThisMonth: "Rs. 0.0L",
+                paidThisMonthCount: 0,
+                pendingApproval: "Rs. 0.0L",
+                pendingApprovalCount: 0
+            }), "kpiModel");
 
-        onInit() {
-            // ADDED: route handler not needed here; model is set on Component
+            this._sSearchQuery = "";
+            this._sStatusKey = "";
+            this._sVendorKey = "";
+
+            this.getOwnerComponent().getRouter()
+                .getRoute("RouteVendorPaymentList")
+                .attachPatternMatched(this._onRouteMatched, this);
         },
 
-        // ADDED: live search across vendor name and invoice ID
-        onSearch(oEvent) {
-            const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue");
-            const aFilters = sQuery ? [new Filter({
-                filters: [
-                    new Filter("vendor", FilterOperator.Contains, sQuery),
-                    new Filter("invoiceId", FilterOperator.Contains, sQuery)
-                ],
-                and: false
-            })] : [];
-            this._applyFilters(aFilters);
+        _onRouteMatched: function () {
+            this._loadMetrics();
+
+            var oTableBinding = this.byId("invoiceTable").getBinding("items");
+            if (oTableBinding) {
+                oTableBinding.refresh();
+            }
         },
 
-        // ADDED: status dropdown filter
-        onStatusFilterChange(oEvent) {
-            const sKey = oEvent.getParameter("selectedItem").getKey();
-            this._applyFilters(sKey ? [new Filter("status", FilterOperator.EQ, sKey)] : []);
+        _loadMetrics: function () {
+            var oModel = this.getOwnerComponent().getModel();
+            var oKPIModel = this.getView().getModel("kpiModel");
+            var oMetricsContext = oModel.bindContext("/getPaymentMetrics(...)");
+
+            oMetricsContext.execute().then(function () {
+                var oBoundContext = oMetricsContext.getBoundContext();
+                if (oBoundContext) {
+                    return oBoundContext.requestObject().then(function (oData) {
+                        if (oData) {
+                            oKPIModel.setData(oData);
+                        }
+                    });
+                }
+            }).catch(function (oError) {
+                MessageToast.show("Could not load payment metrics");
+                console.error("Payment metric load failed", oError);
+            });
         },
 
-        // ADDED: vendor dropdown filter
-        onVendorFilterChange(oEvent) {
-            const sKey = oEvent.getParameter("selectedItem").getKey();
-            this._applyFilters(sKey ? [new Filter("vendor", FilterOperator.EQ, sKey)] : []);
+        onSearch: function (oEvent) {
+            this._sSearchQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
+            this._applyCombinedFilters();
         },
 
-        // ADDED: shared helper — applies filters to the table items binding
-        _applyFilters(aFilters) {
-            this.byId("invoiceTable").getBinding("items").filter(aFilters);
+        onStatusFilterChange: function (oEvent) {
+            var oSelectedItem = oEvent.getParameter("selectedItem");
+            this._sStatusKey = oSelectedItem ? oSelectedItem.getKey() : "";
+            this._applyCombinedFilters();
         },
 
-        // ADDED: KPI tile press pre-filters the table by status
-        onFilterStatus(sStatus) {
-            this.byId("statusFilter").setSelectedKey(sStatus);
-            this._applyFilters(sStatus ? [new Filter("status", FilterOperator.EQ, sStatus)] : []);
+        onVendorFilterChange: function (oEvent) {
+            var oSelectedItem = oEvent.getParameter("selectedItem");
+            this._sVendorKey = oSelectedItem ? oSelectedItem.getKey() : "";
+            this._applyCombinedFilters();
         },
 
-        // ADDED: row press navigation
-        onInvoicePress(oEvent) {
-            this._navigateToEntry(oEvent.getSource().getBindingContext("vendorPayment"));
+        onFilterStatus: function (sStatus) {
+            this._sStatusKey = sStatus || "";
+
+            var oStatusSelect = this.byId("statusFilter");
+            if (oStatusSelect) {
+                oStatusSelect.setSelectedKey(this._sStatusKey);
+            }
+
+            this._applyCombinedFilters();
         },
 
-        // ADDED: action button (Pay now / Approve / View) inside each row
-        onActionPress(oEvent) {
-            this._navigateToEntry(oEvent.getSource().getBindingContext("vendorPayment"));
+        _applyCombinedFilters: function () {
+            var aCombinedFilters = [];
+
+            if (this._sSearchQuery && this._sSearchQuery.trim()) {
+                aCombinedFilters.push(new Filter({
+                    filters: [
+                        new Filter("vendor", FilterOperator.Contains, this._sSearchQuery),
+                        new Filter("invoiceId", FilterOperator.Contains, this._sSearchQuery)
+                    ],
+                    and: false
+                }));
+            }
+
+            if (this._sStatusKey && this._sStatusKey.trim()) {
+                aCombinedFilters.push(new Filter("status", FilterOperator.EQ, this._sStatusKey));
+            }
+
+            if (this._sVendorKey && this._sVendorKey.trim()) {
+                aCombinedFilters.push(new Filter("vendor", FilterOperator.EQ, this._sVendorKey));
+            }
+
+            var oBinding = this.byId("invoiceTable").getBinding("items");
+            if (oBinding) {
+                oBinding.filter(aCombinedFilters.length ? new Filter({
+                    filters: aCombinedFilters,
+                    and: true
+                }) : []);
+            }
         },
 
-        // ADDED: table selection change
-        onInvoiceSelect(oEvent) {
-            this._navigateToEntry(oEvent.getParameter("listItem").getBindingContext("vendorPayment"));
+        onInvoicePress: function (oEvent) {
+            this._navigateToEntry(oEvent.getSource().getBindingContext());
         },
 
-        // ADDED: write selectedInvoice + reset paymentForm, then route
-        _navigateToEntry(oCtx) {
-            const oModel = this.getOwnerComponent().getModel("vendorPayment");
-            const oInvoice = oCtx.getObject();
-            oModel.setProperty("/selectedInvoice", oInvoice);
-            oModel.setProperty("/paymentForm", {
+        onActionPress: function (oEvent) {
+            this._navigateToEntry(oEvent.getSource().getBindingContext());
+        },
+
+        onInvoiceSelect: function (oEvent) {
+            var oListItem = oEvent.getParameter("listItem");
+            if (oListItem) {
+                this._navigateToEntry(oListItem.getBindingContext());
+            }
+        },
+
+        _navigateToEntry: function (oCtx) {
+            if (!oCtx) {
+                MessageToast.show("Invoice data is still loading");
+                return;
+            }
+
+            var oInvoice = oCtx.getObject();
+            var oVendorPaymentModel = this.getOwnerComponent().getModel("vendorPayment");
+
+            oVendorPaymentModel.setProperty("/selectedInvoice", oInvoice);
+            oVendorPaymentModel.setProperty("/paymentForm", {
                 isCheque: false,
                 payingNow: oInvoice.netPayable,
-                balanceAfter: "₹0"
+                balanceAfter: "Rs. 0"
             });
-            this.getOwnerComponent().getRouter().navTo("RoutePaymentEntry", { // CHANGED: matches route name in manifest
-                invoiceId: oInvoice.invoiceId
+
+            this.getOwnerComponent().getRouter().navTo("RoutePaymentEntry", {
+                invoiceId: oInvoice.ID
             });
         },
 
-        // ADDED: placeholder for new payment creation
-        onNewPayment() {
-            MessageToast.show("New payment flow — coming soon");
+        onNewPayment: function () {
+            MessageToast.show("Select an invoice to create a payment");
         }
-
     });
 });

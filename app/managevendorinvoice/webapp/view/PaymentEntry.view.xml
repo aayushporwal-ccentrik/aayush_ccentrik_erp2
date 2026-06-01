@@ -6,50 +6,35 @@
     xmlns:core="sap.ui.core"
     displayBlock="true">
 
-    <Page
-        id="paymentEntryPage"
-        title="Payment Entry"
-        showNavButton="true"
-        navButtonPress=".onNavBack">
-
+    <Page id="paymentEntryPage" title="Payment Entry" showNavButton="true" navButtonPress=".onNavBack">
         <subHeader>
             <Bar id="pe_subHeaderBar">
                 <contentLeft>
                     <Text id="pe_txtBreadcrumb"
-                        text="Vendor payments · {vendorPayment>/selectedInvoice/vendor} · {vendorPayment>/selectedInvoice/invoiceId}"
+                        text="Vendor payments / {vendorPayment>/selectedInvoice/vendor} / {vendorPayment>/selectedInvoice/invoiceId}"
                         class="sapUiTinyMarginBegin"/>
                 </contentLeft>
                 <contentRight>
-                    <ObjectStatus id="invoiceStatus"
-                        text="{vendorPayment>/selectedInvoice/status}"
-                        state="{vendorPayment>/selectedInvoice/statusState}"
-                        icon="sap-icon://accept"/>
+                    <ObjectStatus id="invoiceStatus" text="{vendorPayment>/selectedInvoice/status}"
+                        state="{vendorPayment>/selectedInvoice/statusState}" icon="sap-icon://accept"/>
                 </contentRight>
             </Bar>
         </subHeader>
 
         <content>
             <VBox id="pe_mainVBox" class="sapUiResponsiveMargin">
-
-                <MessageStrip
-                    id="netPayableStrip"
+                <MessageStrip id="netPayableStrip"
                     text="Net payable after TDS deduction: {vendorPayment>/selectedInvoice/netPayable}"
-                    type="Information"
-                    showIcon="true"
-                    class="sapUiSmallMarginBottom"/>
+                    type="Information" showIcon="true" class="sapUiSmallMarginBottom"/>
 
                 <l:Grid id="mainGrid" defaultSpan="L6 M6 S12" class="sapUiSmallMarginBottom">
                     <l:content>
-
-                        <!-- LEFT -->
                         <VBox id="leftSection">
                             <Panel id="invoiceSummaryPanel" headerText="Invoice summary" class="sapUiSmallMarginBottom">
                                 <content>
                                     <f:SimpleForm id="invoiceSummaryForm" editable="false"
-                                        layout="ResponsiveGridLayout"
-                                        labelSpanL="5" labelSpanM="5"
+                                        layout="ResponsiveGridLayout" labelSpanL="5" labelSpanM="5"
                                         columnsL="1" columnsM="1">
-
                                         <f:content>
                                             <Label id="lblVendor" text="Vendor"/>
                                             <Text id="txtVendor" text="{vendorPayment>/selectedInvoice/vendor}"/>
@@ -82,7 +67,8 @@
                                             <ObjectStatus id="osTds" text="{vendorPayment>/selectedInvoice/tds}" state="Error"/>
 
                                             <Label id="lblNetPayable" text="Net payable"/>
-                                            <ObjectNumber id="onNetPayable" number="{vendorPayment>/selectedInvoice/netPayable}" state="Success" emphasized="true"/>
+                                            <ObjectNumber id="onNetPayable" number="{vendorPayment>/selectedInvoice/netPayable}"
+                                                state="Success" emphasized="true"/>
                                         </f:content>
                                     </f:SimpleForm>
                                 </content>
@@ -105,7 +91,7 @@
                                         </HBox>
                                         <HBox id="hboxDup" class="sapUiTinyMarginBottom">
                                             <core:Icon id="iconDup" src="sap-icon://accept" color="Positive" class="sapUiTinyMarginEnd"/>
-                                            <Text id="txtDup" text="Duplicate invoice check — Clear"/>
+                                            <Text id="txtDup" text="Duplicate invoice check - Clear"/>
                                         </HBox>
                                         <HBox id="hboxBank">
                                             <core:Icon id="iconBank" src="sap-icon://accept" color="Positive" class="sapUiTinyMarginEnd"/>
@@ -116,18 +102,15 @@
                             </Panel>
                         </VBox>
 
-                        <!-- RIGHT -->
                         <VBox id="rightSection">
                             <Panel id="paymentDetailsPanel" headerText="Payment details" class="sapUiSmallMarginBottom">
                                 <content>
                                     <f:SimpleForm id="paymentDetailsForm" editable="true"
-                                        layout="ResponsiveGridLayout"
-                                        labelSpanL="4" labelSpanM="4"
+                                        layout="ResponsiveGridLayout" labelSpanL="4" labelSpanM="4"
                                         columnsL="1" columnsM="1">
-
                                         <f:content>
                                             <Label id="lblPayMode" text="Payment mode" required="true"/>
-                                            <Select id="paymentMode" change=".onPaymentModeChange">
+                                            <Select id="paymentMode" change=".onPaymentModeChange" selectedKey="NONE">
                                                 <core:Item id="itemNone" key="NONE" text="Select mode"/>
                                                 <core:Item id="itemNeft" key="NEFT" text="NEFT"/>
                                                 <core:Item id="itemRtgs" key="RTGS" text="RTGS"/>
@@ -137,15 +120,15 @@
                                             <Label id="lblPayDate" text="Payment date" required="true"/>
                                             <DatePicker id="paymentDate"/>
 
-                                            <Label id="lblAmount" text="Amount to pay (₹)" required="true"/>
+                                            <Label id="lblAmount" text="Amount to pay" required="true"/>
                                             <Input id="paymentAmount" type="Number"
                                                 value="{vendorPayment>/selectedInvoice/netPayableRaw}"
                                                 liveChange=".onAmountChange"/>
 
                                             <Label id="lblBankAcc" text="Bank account"/>
                                             <Select id="bankAccount">
-                                                <core:Item id="itemHdfc" key="HDFC-0042" text="HDFC – 0042 (Main)"/>
-                                                <core:Item id="itemSbi" key="SBI-1187" text="SBI – 1187"/>
+                                                <core:Item id="itemHdfc" key="HDFC-0042" text="HDFC - 0042 (Main)"/>
+                                                <core:Item id="itemSbi" key="SBI-1187" text="SBI - 1187"/>
                                             </Select>
 
                                             <Label id="lblUtr" text="UTR / Ref no."/>
@@ -157,12 +140,9 @@
                                     </f:SimpleForm>
                                 </content>
                             </Panel>
-
                         </VBox>
-
                     </l:content>
                 </l:Grid>
-
             </VBox>
         </content>
 
@@ -175,7 +155,5 @@
                 </contentRight>
             </Bar>
         </footer>
-
     </Page>
-
 </mvc:View>

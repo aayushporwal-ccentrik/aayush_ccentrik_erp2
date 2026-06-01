@@ -1,23 +1,41 @@
-using { shreeCem.procurement } from '../db/procurement';
-
+using { shreeCem.procurement as procurement } from '../db/procurement';
+using { shreeCem.master as master } from '../db/masterdata';
 service ProcurementService @(path: '/procurement') {
-
-    // ── Existing projections (unchanged) ──────────────────────────
     entity Requisitions      as projection on procurement.Requisitions;
     entity RequisitionItems  as projection on procurement.RequisitionItems;
+    @cds.redirection.target
     entity PurchaseOrders    as projection on procurement.PurchaseOrders;
     entity POItems           as projection on procurement.POItems;
     entity GoodsReceipt      as projection on procurement.GoodsReceipt;
     entity GRItems           as projection on procurement.GRItems;
     entity VendorPayments    as projection on procurement.VendorPayments;
-
-
-    entity DeliveryChallans     as projection on procurement.DeliveryChallan;
+    entity DeliveryChallans  as projection on procurement.DeliveryChallan;
     entity DeliveryChallanItems as projection on procurement.DeliveryChallanItem;
-
-
-    // ── Challan Custom Actions ─────────────────────────────────
-
+    @readonly
+    entity Vendors as projection on master.Vendors;
+    @readonly
+    @cds.persistence.skip
+    entity Invoices {
+        key ID        : UUID;
+            invoiceId : String(30);
+            vendor    : String(100);
+            vendor_ID : UUID;
+            po_ID     : UUID;
+            poRef     : String(20);
+            grnRef    : String(20);
+            invoiceDate   : Date;
+            dueDate       : Date;
+            grossAmount   : String(30);
+            cgst          : String(30);
+            sgst          : String(30);
+            tds           : String(30);
+            gst           : String(30);
+            netPayable    : String(30);
+            netPayableRaw : Decimal(13,2);
+            status        : String(20);
+            statusState   : String(20);
+            action        : String(20);
+    }
     action uploadChallanPDF(
         challanID : UUID,
         pdfBase64 : LargeString,
@@ -26,7 +44,6 @@ service ProcurementService @(path: '/procurement') {
         success : Boolean;
         message : String;
     };
-
     action extractChallanData(
         challanID : UUID
     ) returns {
@@ -34,7 +51,6 @@ service ProcurementService @(path: '/procurement') {
         message    : String;
         confidence : Decimal(5,2);
     };
-
     action createGoodsReceipt(
         challanID : UUID
     ) returns {
@@ -42,50 +58,27 @@ service ProcurementService @(path: '/procurement') {
         grNumber : String(20);
         message  : String;
     };
-// ADD to ProcurementService
-
-function getVendorInvoices() returns array of {
-    invoiceId    : String;
-    vendor       : String;
-    vendor_ID    : UUID;
-    po_ID        : UUID;
-    poRef        : String;
-    grnRef       : String;
-    invoiceDate  : Date;
-    dueDate      : Date;
-    grossAmount  : Decimal(13,2);
-    cgst         : Decimal(13,2);
-    sgst         : Decimal(13,2);
-    tds          : Decimal(13,2);
-    netPayable   : Decimal(13,2);
-    status       : String;
-};
-
-action submitVendorPayment(
-    po_ID       : UUID,
-    vendor_ID   : UUID,
-    amount      : Decimal(13,2),
-    mode        : String,
-    paymentDate : Date,
-    remarks     : String
-) returns {
-    success       : Boolean;
-    paymentNumber : String;
-    message       : String;
-};
-
-// Add to srv/procurement-service.cds
-
-// Read-only invoice view: GRDone POs with vendor + amounts
-
-};
-
-entity VendorInvoices as select from procurement.PurchaseOrders {
-    ID,
-    poNumber,
-    orderDate,
-    status,
-    vendor.name        as vendor,
-    items.amount       as grossAmount  // sum not possible in CDS projection; use action instead
-};
-
+    action submitVendorPayment(
+        po_ID       : UUID,
+        vendor_ID   : UUID,
+        amount      : Decimal(13,2),
+        mode        : String(20),
+        paymentDate : Date,
+        remarks     : String(500)
+    ) returns {
+        success       : Boolean;
+        paymentNumber : String(20);
+        message       : String;
+    };
+    type MetricFields {
+        totalOutstanding      : String;
+        totalOutstandingCount : Integer;
+        overdue               : String;
+        overdueCount          : Integer;
+        paidThisMonth         : String;
+        paidThisMonthCount    : Integer;
+        pendingApproval       : String;
+        pendingApprovalCount  : Integer;
+    }
+    function getPaymentMetrics() returns MetricFields;
+}

@@ -1,95 +1,64 @@
 <mvc:View controllerName="com.erp.vie.managevendorinvoice.controller.VendorPaymentList"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:l="sap.ui.layout"
-    xmlns:f="sap.ui.layout.form"
     xmlns:core="sap.ui.core"
     displayBlock="true">
 
-    <Page
-        id="vendorPaymentListPage"
-        title="{i18n>title}"
-        showNavButton="false">
-
+    <Page id="vendorPaymentListPage" title="Vendor Payment" showNavButton="false">
         <subHeader>
             <Bar id="subHeaderBar">
                 <contentLeft>
-                    <Text id="txtBreadcrumb" text="Procurement · Vendor payments" class="sapUiTinyMarginBegin"/>
+                    <Text id="txtBreadcrumb" text="Procurement / Vendor payments" class="sapUiTinyMarginBegin"/>
                 </contentLeft>
             </Bar>
         </subHeader>
 
         <content>
             <VBox id="mainVBox" class="sapUiResponsiveMargin">
-
                 <HBox id="hboxTiles" wrap="Wrap" class="sapUiSmallMarginBottom">
-                    <GenericTile
-                        id="tileOutstanding"
-                        header="Total outstanding"
-                        subheader="{vendorPayment>/metrics/totalOutstandingCount} invoices"
-                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
-                        press=".onFilterStatus('')">
+                    <GenericTile id="tileOutstanding" header="Total outstanding" subheader="{kpiModel>/totalOutstanding}"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom" press=".onFilterStatus('')">
                         <tileContent>
                             <TileContent id="tcOutstanding">
                                 <content>
-                                    <NumericContent id="ncOutstanding"
-                                        value="{vendorPayment>/metrics/totalOutstanding}"
-                                        valueColor="Neutral"
-                                        withMargin="false"/>
+                                    <NumericContent id="ncOutstanding" value="{kpiModel>/totalOutstandingCount}"
+                                        valueColor="Neutral" indicator="None" withMargin="false"/>
                                 </content>
                             </TileContent>
                         </tileContent>
                     </GenericTile>
 
-                    <GenericTile
-                        id="tileOverdue"
-                        header="Overdue"
-                        subheader="{vendorPayment>/metrics/overdueCount} invoices"
-                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
-                        press=".onFilterStatus('Overdue')">
+                    <GenericTile id="tileOverdue" header="Overdue" subheader="{kpiModel>/overdue}"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom" press=".onFilterStatus('Overdue')">
                         <tileContent>
                             <TileContent id="tcOverdue">
                                 <content>
-                                    <NumericContent id="ncOverdue"
-                                        value="{vendorPayment>/metrics/overdue}"
-                                        valueColor="Critical"
-                                        withMargin="false"/>
+                                    <NumericContent id="ncOverdue" value="{kpiModel>/overdueCount}"
+                                        valueColor="Critical" withMargin="false"/>
                                 </content>
                             </TileContent>
                         </tileContent>
                     </GenericTile>
 
-                    <GenericTile
-                        id="tilePaid"
-                        header="Paid this month"
-                        subheader="{vendorPayment>/metrics/paidThisMonthCount} invoices"
-                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
-                        press=".onFilterStatus('Paid')">
+                    <GenericTile id="tilePaid" header="Paid this month" subheader="{kpiModel>/paidThisMonth}"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom" press=".onFilterStatus('Paid')">
                         <tileContent>
                             <TileContent id="tcPaid">
                                 <content>
-                                    <NumericContent id="ncPaid"
-                                        value="{vendorPayment>/metrics/paidThisMonth}"
-                                        valueColor="Good"
-                                        withMargin="false"/>
+                                    <NumericContent id="ncPaid" value="{kpiModel>/paidThisMonthCount}"
+                                        valueColor="Good" withMargin="false"/>
                                 </content>
                             </TileContent>
                         </tileContent>
                     </GenericTile>
 
-                    <GenericTile
-                        id="tilePending"
-                        header="Pending approval"
-                        subheader="{vendorPayment>/metrics/pendingApprovalCount} invoices"
-                        class="sapUiTinyMarginBottom"
-                        press=".onFilterStatus('Pending')">
+                    <GenericTile id="tilePending" header="Pending approval" subheader="{kpiModel>/pendingApproval}"
+                        class="sapUiTinyMarginBottom" press=".onFilterStatus('Pending')">
                         <tileContent>
                             <TileContent id="tcPending">
                                 <content>
-                                    <NumericContent id="ncPending"
-                                        value="{vendorPayment>/metrics/pendingApproval}"
-                                        valueColor="Critical"
-                                        withMargin="false"/>
+                                    <NumericContent id="ncPending" value="{kpiModel>/pendingApprovalCount}"
+                                        valueColor="Critical" withMargin="false"/>
                                 </content>
                             </TileContent>
                         </tileContent>
@@ -97,14 +66,11 @@
                 </HBox>
 
                 <Toolbar id="filterToolbar" class="sapUiSmallMarginBottom">
-                    <SearchField
-                        id="searchField"
-                        placeholder="Search vendor / invoice…"
-                        width="220px"
-                        search=".onSearch"
-                        liveChange=".onSearch"/>
+                    <SearchField id="searchField" placeholder="Search vendor / invoice..." width="220px"
+                        search=".onSearch" liveChange=".onSearch"/>
                     <ToolbarSpacer id="tsSpacer1" width="12px"/>
-                    <Select id="statusFilter" change=".onStatusFilterChange" forceSelection="false">
+
+                    <Select id="statusFilter" change=".onStatusFilterChange" forceSelection="false" selectedKey="">
                         <core:Item id="itemStatusAll" key="" text="All statuses"/>
                         <core:Item id="itemStatusPending" key="Pending" text="Pending"/>
                         <core:Item id="itemStatusApproved" key="Approved" text="Approved"/>
@@ -113,31 +79,19 @@
                         <core:Item id="itemStatusPartial" key="Partial" text="Partial"/>
                     </Select>
                     <ToolbarSpacer id="tsSpacer2" width="12px"/>
-                    <Select id="vendorFilter" change=".onVendorFilterChange" forceSelection="false">
-                        <core:Item id="itemVendorAll" key="" text="All vendors"/>
-                        <core:Item id="itemVendorRamco" key="Ramco Cements Ltd" text="Ramco Cements Ltd"/>
-                        <core:Item id="itemVendorAcc" key="ACC Ltd" text="ACC Ltd"/>
-                        <core:Item id="itemVendorUltra" key="Ultratech Logistics" text="Ultratech Logistics"/>
-                        <core:Item id="itemVendorBharat" key="Bharat Electricals" text="Bharat Electricals"/>
-                        <core:Item id="itemVendorShree" key="Shree Polymers" text="Shree Polymers"/>
+
+                    <Select id="vendorFilter" change=".onVendorFilterChange" forceSelection="false"
+                        selectedKey="" items="{path: '/Vendors'}">
+                        <core:Item id="itemVendorDynamic" key="{name}" text="{name}"/>
                     </Select>
+
                     <ToolbarSpacer id="tsSpacerEnd"/>
-                    <Button
-                        id="btnNewPayment"
-                        text="New payment"
-                        type="Emphasized"
-                        icon="sap-icon://add"
-                        press=".onNewPayment"/>
+                    <Button id="btnNewPayment" text="New payment" type="Emphasized"
+                        icon="sap-icon://add" press=".onNewPayment"/>
                 </Toolbar>
 
-                <Table
-                    id="invoiceTable"
-                    items="{vendorPayment>/invoices}"
-                    growing="true"
-                    growingThreshold="10"
-                    mode="SingleSelectMaster"
-                    selectionChange=".onInvoiceSelect">
-
+                <Table id="invoiceTable" items="{path: '/Invoices'}" growing="true" growingThreshold="10"
+                    mode="SingleSelectMaster" selectionChange=".onInvoiceSelect">
                     <headerToolbar>
                         <Toolbar id="tableToolbar">
                             <Title id="tableTitle" text="Invoices" level="H3"/>
@@ -160,37 +114,33 @@
                         <ColumnListItem id="invoiceCLI" type="Navigation" press=".onInvoicePress">
                             <cells>
                                 <VBox id="cellVendorVBox">
-                                    <Text id="cellVendor" text="{vendorPayment>vendor}" class="sapMTextBold"/>
-                                    <Label id="cellInvoiceId" text="{vendorPayment>invoiceId}"/>
+                                    <Text id="cellVendor" text="{vendor}" class="sapMTextBold"/>
+                                    <Label id="cellInvoiceId" text="{invoiceId}"/>
                                 </VBox>
-                                <Text id="cellPoRef" text="{vendorPayment>poRef}"/>
-                                <Text id="cellInvDate" text="{vendorPayment>invoiceDate}"/>
-                                <Text id="cellDueDate" text="{vendorPayment>dueDate}"/>
-                                <Text id="cellGrossAmt" text="{vendorPayment>grossAmount}"/>
-                                <Text id="cellTdsGst" text="{vendorPayment>tds} / {vendorPayment>gst}"/>
-                                <ObjectNumber id="cellNetPayable" number="{vendorPayment>netPayable}" emphasized="true"/>
-                                <ObjectStatus id="cellStatus" text="{vendorPayment>status}" state="{vendorPayment>statusState}"/>
-                                <Button id="cellActionBtn" text="{vendorPayment>action}" type="Transparent" press=".onActionPress"/>
+                                <Text id="cellPoRef" text="{poRef}"/>
+                                <Text id="cellInvDate" text="{invoiceDate}"/>
+                                <Text id="cellDueDate" text="{dueDate}"/>
+                                <Text id="cellGrossAmt" text="{grossAmount}"/>
+                                <Text id="cellTdsGst" text="{tds} / {gst}"/>
+                                <ObjectNumber id="cellNetPayable" number="{netPayable}" emphasized="true"/>
+                                <ObjectStatus id="cellStatus" text="{status}" state="{statusState}"/>
+                                <Button id="cellActionBtn" text="{action}" type="Transparent" press=".onActionPress"/>
                             </cells>
                         </ColumnListItem>
                     </items>
-
                 </Table>
-
             </VBox>
         </content>
 
         <footer>
             <Bar id="footerBar">
                 <contentLeft>
-                    <Text id="txtFooterLeft" text="Verification: GRN match · PO price · GST · Duplicate check · Bank details"/>
+                    <Text id="txtFooterLeft" text="Verification: GRN match / PO price / GST / Duplicate check / Bank details"/>
                 </contentLeft>
                 <contentRight>
-                    <Text id="txtFooterRight" text="Payment modes: NEFT · RTGS · Cheque · Partial · Advance (with approval)"/>
+                    <Text id="txtFooterRight" text="Payment modes: NEFT / RTGS / Cheque / Partial / Advance (with approval)"/>
                 </contentRight>
             </Bar>
         </footer>
-
     </Page>
-
 </mvc:View>
