@@ -127,55 +127,65 @@ sap.ui.define([
             oReader.readAsDataURL(oFile);
         },
 
-        onExtract: function (oEvent) {
-            var oView = this._getHostView();
-            var oDialogModel = oView.getModel("challan");
-            var oODataModel = oEvent.getSource().getModel();
+onExtract: function (oEvent) {
+    var oView = this._getHostView();
+    var oDialogModel = oView.getModel("challan");
+    var oODataModel = oEvent.getSource().getModel();
 
-            if (!sPdfBase64) {
-                MessageToast.show("Please select a PDF first.");
-                return;
-            }
+    if (!sPdfBase64) {
+        MessageToast.show("Please select a PDF first.");
+        return;
+    }
 
-            var sChallanID = this._uuid();
-            oDialogModel.setProperty("/challanID", sChallanID);
-            oDialogModel.setProperty("/extracting", true);
-            oDialogModel.setProperty("/canExtract", false);
-            oDialogModel.setProperty("/extractDone", false);
-            oDialogModel.setProperty("/previewApproved", false);
-            oDialogModel.setProperty("/statusMessage", "Uploading PDF to CAP service...");
-            oDialogModel.setProperty("/statusState", "Information");
+    var sChallanID = this._uuid();
+    oDialogModel.setProperty("/challanID", sChallanID);
+    oDialogModel.setProperty("/extracting", true);
+    oDialogModel.setProperty("/canExtract", false);
+    oDialogModel.setProperty("/extractDone", false);
+    oDialogModel.setProperty("/previewApproved", false);
+    oDialogModel.setProperty("/statusMessage", "Uploading PDF to CAP database service...");
+    oDialogModel.setProperty("/statusState", "Information");
 
-            this._executeAction(oODataModel, "/uploadChallanPDF(...)", {
-                challanID: sChallanID,
-                pdfBase64: sPdfBase64,
-                fileName: sFileName
-            }).then(function (oUploadResult) {
-                if (oUploadResult && oUploadResult.success === false) {
-                    throw new Error(oUploadResult.message || "PDF upload failed");
-                }
+    // 1. Create upload context with an isolated, immediate update group ($direct)
+    var oUploadContext = oODataModel.bindContext("/uploadChallanPDF(...)", null, {
+        $$updateGroupId: "$direct" 
+    });
+    oUploadContext.setParameter("challanID", sChallanID);
+    oUploadContext.setParameter("pdfBase64", sPdfBase64);
+    oUploadContext.setParameter("fileName", sFileName);
 
-                oDialogModel.setProperty("/statusMessage", "Extracting challan data using BTP Document Information Extraction...");
-                return this._executeAction(oODataModel, "/extractChallanData(...)", {
-                    challanID: sChallanID
-                });
-            }.bind(this)).then(function (oExtractResult) {
-                if (oExtractResult && oExtractResult.success === false) {
-                    throw new Error(oExtractResult.message || "AI extraction failed");
-                }
+    // STEP 1: Execute and finish PDF Upload completely
+    oUploadContext.execute().then(function () {
+        var oUploadRes = oUploadContext.getBoundContext().getObject();
+        if (oUploadRes && oUploadRes.value && oUploadRes.value.success === false) {
+            throw new Error(oUploadRes.value.message || "PDF upload failed");
+        }
 
-                oDialogModel.setProperty("/statusMessage", "Loading extraction preview...");
-                return this._readChallanPreview(oODataModel, sChallanID);
-            }.bind(this)).then(function (oData) {
-                this._applyPreview(oDialogModel, oData);
-            }.bind(this)).catch(function (oError) {
-                oDialogModel.setProperty("/extracting", false);
-                oDialogModel.setProperty("/canExtract", true);
-                oDialogModel.setProperty("/statusMessage", "Extraction failed: " + (oError.message || oError));
-                oDialogModel.setProperty("/statusState", "Error");
-            });
-        },
+        oDialogModel.setProperty("/statusMessage", "Extracting challan data using BTP Document Information Extraction...");
+        
+        // STEP 2: Now bind and run extraction (uses regular batch/auto group safely)
+        var oExtractContext = oODataModel.bindContext("/extractChallanData(...)");
+        oExtractContext.setParameter("challanID", sChallanID);
+        
+        return oExtractContext.execute().then(function () {
+            return oExtractContext.getBoundContext().getObject();
+        });
+    }).then(function (oExtractRes) {
+        if (oExtractRes && oExtractRes.value && oExtractRes.value.success === false) {
+            throw new Error(oExtractRes.value.message || "AI extraction failed");
+        }
 
+        oDialogModel.setProperty("/statusMessage", "Loading extraction preview...");
+        return Extension._readChallanPreview(oODataModel, sChallanID);
+    }).then(function (oData) {
+        Extension._applyPreview(oDialogModel, oData);
+    }).catch(function (oError) {
+        oDialogModel.setProperty("/extracting", false);
+        oDialogModel.setProperty("/canExtract", true);
+        oDialogModel.setProperty("/statusMessage", "Extraction failed: " + (oError.message || oError));
+        oDialogModel.setProperty("/statusState", "Error");
+    });
+},
         onPreviewApprovalChange: function (oEvent) {
             var oView = this._getHostView();
             oView.getModel("challan").setProperty("/previewApproved", oEvent.getParameter("selected"));
@@ -204,28 +214,31 @@ sap.ui.define([
                     oDialogModel.setProperty("/statusMessage", "Creating Goods Receipt...");
                     oDialogModel.setProperty("/statusState", "Information");
 
-                    this._executeAction(oEvent.getSource().getModel(), "/createGoodsReceipt(...)", {
-                        challanID: sChallanID
-                    }).then(function (oResult) {
-                        oDialogModel.setProperty("/creatingGR", false);
+                    var oGRContext = oEvent.getSource().getModel().bindContext("/createGoodsReceipt(...)");
+                    oGRContext.setParameter("challanID", sChallanID);
 
-                        if (oResult && oResult.success) {
-                            oDialogModel.setProperty("/grNumber", oResult.grNumber);
-                            oDialogModel.setProperty("/statusMessage", oResult.message || "Goods Receipt created.");
+                    oGRContext.execute().then(function () {
+                        oDialogModel.setProperty("/creatingGR", false);
+                        var oResult = oGRContext.getBoundContext().getObject();
+                        var oValue = oResult ? oResult.value : null;
+
+                        if (oValue && oValue.success) {
+                            oDialogModel.setProperty("/grNumber", oValue.grNumber);
+                            oDialogModel.setProperty("/statusMessage", oValue.message || "Goods Receipt created.");
                             oDialogModel.setProperty("/statusState", "Success");
-                            MessageToast.show("Goods Receipt " + oResult.grNumber + " created.");
+                            MessageToast.show("Goods Receipt " + oValue.grNumber + " created.");
                             oEvent.getSource().getModel().refresh();
                             return;
                         }
 
-                        MessageBox.error(oResult ? oResult.message : "Error creating Goods Receipt.");
+                        MessageBox.error(oValue ? oValue.message : "Error creating Goods Receipt.");
                     }).catch(function (oError) {
                         oDialogModel.setProperty("/creatingGR", false);
                         oDialogModel.setProperty("/statusMessage", "GR creation failed: " + (oError.message || oError));
                         oDialogModel.setProperty("/statusState", "Error");
                         MessageBox.error("GR creation failed: " + (oError.message || oError));
                     });
-                }.bind(this)
+                }
             });
         },
 
@@ -238,17 +251,6 @@ sap.ui.define([
 
             if (!oDialog && oImportDialog) {
                 oDialog = oImportDialog;
-            }
-
-            if (!oDialog && sap.ui && sap.ui.getCore && sap.ui.getCore().byFieldGroupId) {
-                sap.ui.getCore().byFieldGroupId("").some(function (oControl) {
-                    if (oControl.getId && oControl.getId().indexOf("importChallanDialog") !== -1
-                        && oControl.getMetadata().getName() === "sap.m.Dialog") {
-                        oDialog = oControl;
-                        return true;
-                    }
-                    return false;
-                });
             }
 
             if (oDialog) {
@@ -267,19 +269,6 @@ sap.ui.define([
                 return oHostView;
             }
             throw new Error("Import dialog host view is not available.");
-        },
-
-        _executeAction: function (oModel, sPath, oParameters) {
-            var oAction = oModel.bindContext(sPath);
-
-            Object.keys(oParameters || {}).forEach(function (sKey) {
-                oAction.setParameter(sKey, oParameters[sKey]);
-            });
-
-            return oAction.execute().then(function () {
-                var oContext = oAction.getBoundContext();
-                return oContext ? oContext.requestObject() : null;
-            });
         },
 
         _readChallanPreview: function (oModel, sChallanID) {
@@ -336,6 +325,7 @@ sap.ui.define([
         _setStatus: function (oModel, sMessage, sState) {
             oModel.setProperty("/statusMessage", sMessage);
             oModel.setProperty("/statusState", sState);
+            oModel.setProperty("/canExtract", false);
         },
 
         _uuid: function () {

@@ -2,6 +2,7 @@
   "name": "erpc",
   "version": "1.0.0",
   "dependencies": {
+    "@cap-js/hana": "^2",
     "@sap/cds": "^9",
     "@sap/xsenv": "^3.4.0",
     "@sap/xssec": "^4"
@@ -31,6 +32,11 @@
     "app/managegre"
   ],
   "cds": {
+    "server": {
+      "body_parser": {
+        "limit": "20mb"
+      }
+    },
     "requires": {
       "dox": {
         "kind": "rest",
@@ -43,7 +49,10 @@
         }
       },
       "[production]": {
-        "auth": "xsuaa"
+        "auth": "mocked",
+        "db": {
+          "kind": "hana"
+        }
       }
     }
   }

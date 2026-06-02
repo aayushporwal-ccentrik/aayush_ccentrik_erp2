@@ -27,6 +27,15 @@ modules:
       - name: erpc-destination
       - name: default_document-information-extraction-trial
       - name: erpc-auth
+      - name: erpc-db
+
+  - name: erpc-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+    requires:
+      - name: erpc-db
 
 resources:
   - name: erpc-destination
@@ -49,3 +58,8 @@ resources:
           credential-types:
             - "binding-secret"
             - "x509"
+  - name: erpc-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared

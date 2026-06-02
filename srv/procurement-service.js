@@ -13,7 +13,6 @@ module.exports = class ProcurementService extends cds.ApplicationService {
 
         return super.init();
     }
-
     async _uploadChallanPDF({ data }) {
         const { challanID, pdfBase64, fileName } = data;
         if (!challanID || !pdfBase64) {
@@ -22,31 +21,43 @@ module.exports = class ProcurementService extends cds.ApplicationService {
 
         const db = await cds.connect.to('db'); 
         const { DeliveryChallan } = db.entities('shreeCem.procurement');
-        const existing = await db.read(DeliveryChallan, challanID);
+        
+        // 1. Safely check for existing records using explicit CQN SELECT
+        const existing = await db.run(SELECT.from(DeliveryChallan).where({ challanID }));
         const pdfBuffer = Buffer.from(pdfBase64, 'base64');
+        const timestamp = new Date().toISOString();
+        const user = cds.context?.user?.id || 'system';
 
-        if (existing) {
-            await db.update(DeliveryChallan, challanID).with({
-                pdfContent: pdfBuffer,
-                pdfFileName: fileName,
-                status: 'PENDING',
-                createdAt: new Date().toISOString(),
-                createdBy: cds.context?.user?.id || 'system'
-            });
+        if (existing.length > 0) {
+            // 2. Explicit Update
+            await db.run(
+                UPDATE(DeliveryChallan)
+                .set({
+                    pdfContent: pdfBuffer,
+                    pdfFileName: fileName || 'challan.pdf',
+                    status: 'PENDING',
+                    createdAt: timestamp,
+                    createdBy: user
+                })
+                .where({ challanID })
+            );
         } else {
-            await db.insert(DeliveryChallan).entries({
-                challanID,
-                pdfContent: pdfBuffer,
-                pdfFileName: fileName,
-                status: 'PENDING',
-                createdAt: new Date().toISOString(),
-                createdBy: cds.context?.user?.id || 'system'
-            });
+            // 3. Explicit CQN Insert 
+            await db.run(
+                INSERT.into(DeliveryChallan).entries({
+                    challanID: challanID,
+                    pdfContent: pdfBuffer,
+                    pdfFileName: fileName || 'challan.pdf',
+                    status: 'PENDING',
+                    createdAt: timestamp,
+                    createdBy: user,
+                    items: [] // 🟢 MATCHED TO SCHEMA: Keeps the compiler happy during creation!
+                })
+            );
         }
 
         return { success: true, message: 'PDF uploaded successfully' };
     }
-
     async _extractChallanData({ data }) {
         const { challanID } = data;
         if (!challanID) return { success: false, message: 'challanID is required', confidence: 0 };
@@ -537,26 +548,40 @@ module.exports = class ProcurementService extends cds.ApplicationService {
         throw new Error('DIE extraction timed out after 30s');
     }
 
-    _mapDIEResult(job) {
+_mapDIEResult(job) {
+        // Safe field lookup helper
         const getField = (fields, name) =>
             (Array.isArray(fields) ? fields : []).find(f => f.name === name)?.value ?? '';
 
         const h = job.extraction?.headerFields || [];
-        const overallConfidence = job.extraction?.headerFields
-            ?.reduce((acc, f) => acc + (f.confidence || 0), 0) /
-            (job.extraction?.headerFields?.length || 1);
+        
+        // Calculate header confidence safely
+        const overallConfidence = h.length 
+            ? h.reduce((acc, f) => acc + (f.confidence || 0), 0) / h.length 
+            : 0;
 
-        const lineItems = (job.extraction?.lineItems || []).map(liFields => ({
-            vendorMaterialCode: getField(liFields, 'materialNumber'),
-            materialDescription: getField(liFields, 'description'),
-            deliveredQuantity: parseFloat(getField(liFields, 'quantity')) || 0,
-            unitOfMeasure: getField(liFields, 'unitOfMeasure') || 'EA',
-            unitPrice: parseFloat(getField(liFields, 'unitPrice')) || 0,
-            totalValue: parseFloat(getField(liFields, 'netAmount')) || 0,
-            batchNumber: getField(liFields, 'batchNumber'),
-            hsnCode: getField(liFields, 'hsnCode'),
-            confidence: liFields.reduce?.((a, f) => a + (f.confidence || 0), 0) / (liFields.length || 1) || 0
-        }));
+        // 🟢 FIX: Handle the true nested array structure of DIE Line Items
+        const extractedLineItems = (job.extraction?.lineItems || []).map(item => {
+            // Document AI separates properties inside an inner array (often called 'properties' or 'fields')
+            const fieldsArray = item.properties || item.fields || [];
+            
+            // Calculate item-level confidence safely from the array
+            const itemConfidence = fieldsArray.length
+                ? fieldsArray.reduce((a, f) => a + (f.confidence || 0), 0) / fieldsArray.length
+                : 0;
+
+            return {
+                vendorMaterialCode: getField(fieldsArray, 'materialNumber'),
+                materialDescription: getField(fieldsArray, 'description'),
+                deliveredQuantity: parseFloat(getField(fieldsArray, 'quantity')) || 0,
+                unitOfMeasure: getField(fieldsArray, 'unitOfMeasure') || 'EA',
+                unitPrice: parseFloat(getField(fieldsArray, 'unitPrice')) || 0,
+                totalValue: parseFloat(getField(fieldsArray, 'netAmount')) || 0,
+                batchNumber: getField(fieldsArray, 'batchNumber'),
+                hsnCode: getField(fieldsArray, 'hsnCode'),
+                confidence: Math.round(itemConfidence * 100) / 100
+            };
+        });
 
         return {
             challanNumber: getField(h, 'documentNumber'),
@@ -568,7 +593,7 @@ module.exports = class ProcurementService extends cds.ApplicationService {
             deliveryAddress: getField(h, 'deliveryAddress'),
             totalQuantity: parseFloat(getField(h, 'totalQuantity')) || 0,
             overallConfidence: Math.round((overallConfidence || 0) * 100) / 100,
-            lineItems
+            lineItems: extractedLineItems
         };
     }
 };
